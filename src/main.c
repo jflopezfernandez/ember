@@ -38,7 +38,7 @@ static SDL_Texture* texture = NULL;
 static SDL_Rect render_area;
 static int thread_exit_signal = 0;
 
-static void frame_handler(void* frame, int length) {
+static void frame_handler(void* frame, __attribute__((unused)) int length) {
     SDL_UpdateTexture(texture, &render_area, frame, VIDEO_WIDTH * 2);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, &render_area);
@@ -170,9 +170,18 @@ static void* video_streaming(void* arg) {
 
 static const char* const device = "/dev/video0";
 
+void clean_up(void) {
+    SDL_Quit();
+}
+
 int main(void)
 {
     /** @todo Accept command-line arguments */
+
+    if (atexit(clean_up)) {
+        fprintf(stderr, "[Error] Callback registration failed: clean_up()\n");
+        exit(EXIT_FAILURE);
+    }
     
     int device_descriptor = open_video_stream(device);
     set_video_buffer_format(device_descriptor, V4L2_PIX_FMT_YUYV);
@@ -185,7 +194,32 @@ int main(void)
 
     if (pthread_create(&thread_stream, NULL, video_streaming, (void *) &stream_handler)) {
         fprintf(stderr, "[Error] Stream-handler thread creation failed.\n");
+        stop_video_stream(device_descriptor);
+        SDL_Quit();
         exit(EXIT_FAILURE);
+    }
+
+    int exit = 0;
+    SDL_Event event;
+
+    while (!exit) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_KEYDOWN: {
+                    switch (event.key.keysym.sym) {
+                        case SDLK_ESCAPE: {
+                            exit = 1;
+                        } break;
+                    }
+                } break;
+
+                case SDL_QUIT: {
+                    exit = 1;
+                }
+            }
+        }
+
+        usleep(25);
     }
     
     pthread_join(thread_stream, NULL);

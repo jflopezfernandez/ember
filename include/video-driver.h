@@ -47,6 +47,14 @@
 #define REQUEST_BUFFERS 4
 #endif
 
+// #ifndef VIDEO_HEIGHT
+// #define VIDEO_HEIGHT 2160
+// #endif
+
+// #ifndef VIDEO_WIDTH
+// #define VIDEO_WIDTH 3840
+// #endif
+
 #ifndef VIDEO_HEIGHT
 #define VIDEO_HEIGHT 480
 #endif

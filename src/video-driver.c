@@ -68,7 +68,7 @@ void set_video_buffer_format(int device_descriptor, uint32_t format) {
     video_format.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
     if (ioctl(device_descriptor, VIDIOC_S_FMT, &video_format) == -1) {
-        fprintf(stderr, "[Error] Could not set video format.\n");
+        fprintf(stderr, "[Error] Could not set video format: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 }
@@ -138,7 +138,8 @@ void memory_map_video_buffer(int device_descriptor) {
          *      Saved in YUV422 format, a pixel needs an
          *      average of two bytes of space. Since our
          *      video frame size is 640 by 480, this gives
-         *      us 640 * 480, or 614400 per buffer.
+         *      us 640 * 480 * 2, or 614400 bytes, per
+         *      buffer.
          *
          */
         printf("Buffer outset: %d\t\tlength: %d\n", video_buffer.m.offset, video_buffer.length);

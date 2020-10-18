@@ -4,7 +4,7 @@ vpath %.c src
 RM := rm -f
 
 CC := gcc
-CFLAGS := -std=c17 -Wall -Wextra -Wpedantic -fanalyzer -O0 -ggdb3
+CFLAGS := -std=c17 -Wall -Wextra -Wpedantic -O0 -ggdb3 -fanalyzer -fsanitize=address,leak,undefined
 CPPFLAGS := -Iinclude -I/usr/include/SDL2 -D_GNU_SOURCE -D_REENTRANT -DNDEBUG
 LDFLAGS :=
 LDLIBS := -lSDL2 -pthread
